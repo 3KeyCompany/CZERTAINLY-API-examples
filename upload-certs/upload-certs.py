@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
-import requests
+import argparse
 import base64
 import time
-import argparse
+import requests
 import urllib3
 from cryptography import x509
 from cryptography.hazmat.primitives import serialization
@@ -84,11 +84,7 @@ def upload_certificate(config, PEM:str):
                 r = certificate_validate(config, uuid)
                 if r.status_code == 200:
                     print(' ' + str(r.json()['resultStatus']), end="")
-                    r = certificate_get_details(config, uuid)
-                    if r.status_code == 200:
-                        return 2
-                    else:
-                        return 7
+                    return 2
                 else:
                     return 6
             elif (r.status_code == 504) and ("Gateway Time-out" in str(r.text)):
