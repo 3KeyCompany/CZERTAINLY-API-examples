@@ -6,27 +6,23 @@ import ldap3
 
 class Ldap:
     def __init__(self, server_uri, ldap_user, ldap_password):
-        self.server = ldap3.Server(server_uri, get_info=ldap3.ALL)
-        self.conn = ldap3.Connection(self.server, user=ldap_user, password=ldap_password, auto_bind=True)
+        self.server = ldap3.Server(server_uri, get_info=ldap3.ALL) # set the LDAP URI
+        self.conn = ldap3.Connection(self.server, user=ldap_user, password=ldap_password, auto_bind=True) ## set the user which is used for authentication
         print(self.conn)
-    def who_am_i(self):
+    def who_am_i(self): # print information about the authenticated user
         return self.conn.extend.standard.who_am_i()
     
     
-    def get_groups(self):
-        self.conn.search('ou=Groups,dc=winlab,dc=3key,dc=company', '(objectclass=group)', attributes=[ 'cn','objectclass','mail'])
+    def get_groups(self): # from LDAP get all objects GROUP - specifically groups name and email
+        self.conn.search('ou=Groups,dc=testlab,dc=3key,dc=company', '(objectclass=group)', attributes=[ 'cn','objectclass','mail'])
         return self.conn.entries
     
-    def get_members(self):
-        self.conn.search('OU=Users,OU=Development,OU=Slany,DC=winlab,DC=3key,DC=company','(objectclass=person)')
-        return self.conn.entries
-
 
 ############ 
 
-LDAP_URI = "ldap://winlab01.3key.company"
+LDAP_URI = "ldap://testlab.3key.company"
 password = "your-password"
-username = "cn=your-user,cn=Users,dc=winlab,dc=3key,dc=company"
+username = "cn=your-user,cn=Users,dc=testlab,dc=3key,dc=company"
 
 
 ldap = Ldap(LDAP_URI, username, password)

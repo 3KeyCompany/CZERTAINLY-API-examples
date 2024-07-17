@@ -4,8 +4,8 @@ import json
 
 
 headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-cert_file = "admin-czertainly-lab09.crt"
-key_file = "admin-czertainly-lab09.key"
+cert_file = "admin-czertainly.crt"
+key_file = "admin-czertainly.key"
 api_url_base = "https://czertainly.3key.company"
 
 

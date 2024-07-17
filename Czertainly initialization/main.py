@@ -19,18 +19,18 @@ for ldap_group in ldap_groups:
     if group_name in czertainly_group_names:
         czertainly_group_email = czertainly_group_emails[czertainly_group_names.index(group_name)]
         if group_email != czertainly_group_email:
-            print("novy email", group_email)
+            print("new email", group_email)
             editobject = editObject(group_name,group_email)
     else:
-        print("nova skupina", group_name)
+        print("new group", group_name)
         newobject = createObject (group_name, group_email)
     
-## smazani skupin (pokud je v Czertainly, ale neni v ldapu)
+## removing of redundant groups (the groups is in CZERTAINLY but not in LDAP)
 ldap_groups_names = [item['name'] for item in ldap_groups]
      
 for czertainly_group in [item['name'] for item in czertainly_groups]:
     if czertainly_group not in ldap_groups_names:
-        print("skupina ke smazani", czertainly_group)
+        print("group to remove", czertainly_group)
         deleteobject = deleteObject(czertainly_group)
      
      
