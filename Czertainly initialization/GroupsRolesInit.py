@@ -4,9 +4,9 @@ import json
 
 
 headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-cert_file = "admin-czertainly.crt"
-key_file = "admin-czertainly.key"
-api_url_base = "https://czertainly.3key.company"
+cert_file = "admin-czertainly-lab09.crt"
+key_file = "admin-czertainly-lab09.key"
+api_url_base = "https://katka1.3key.company/"
 
 
 ## init Authority and RA profile attributes - Authority and RA profile for issuing client certificates 
@@ -48,7 +48,7 @@ def deleteRole(uuid):
     res = requests.delete(api_url + "/" + uuid, headers=headers, cert=(cert_file, key_file))
     return(res)
 
-# Assign attributes to Role ---------------------
+# Assign Permissions to Role ---------------------
 
 # Get Role Permissions
 def getRolePermissions(uuid):
@@ -75,6 +75,11 @@ def addRolesAuthorities(roleUuid, resourcesUuid, authorityUuid, authorityName):
     api_url = api_url + "/" + roleUuid + "/permissions/" + resourcesUuid + "/objects/" + authorityUuid
     res = requests.put(api_url , headers=headers, cert=(cert_file, key_file), json = data)
     return(res)
+
+
+
+
+
 # -------------------------------------------------------------------------------------------------
 
 
@@ -89,6 +94,36 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
     res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     return(r_json)
+
+
+## RB intit configuration - rb_group_1 - intit users can do all operations with certificates and can initialize discovery (both for specific HashiCorp Vault CA)
+
+def addRolesRBPermissions(uuid): # add permissions to work with certificates
+    api_url = api_url_base + "/api/v1/roles"
+    certificates = {"name": "certificates","allowAllActions": True, "actions": [],"objects": []}
+    locations = {"name": "locations","allowAllActions": True, "actions": ["detail","list"],"objects": []}
+    acmeAccounts = {"name": "acmeAccounts","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    acmeProfiles = {"name": "acmeProfiles","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    authorities = {"name": "authorities","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    connectors = {"name": "connectors","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    discoveries = {"name": "discoveries","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    groups = {"name": "groups","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    raProfiles = {"name": "raProfiles","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    roles = {"name": "roles","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    triggers = {"name": "triggers","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    users = {"name": "users","allowAllActions": False, "actions": ["detail","list"],"objects": []}
+    
+    
+    resources = [certificates, locations, acmeAccounts,acmeProfiles,authorities,connectors,discoveries,groups,raProfiles,roles,triggers,users]
+    data = {"allowAllResources": False, "resources": resources}
+    res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
+    r_json = res.json()
+    return(r_json)
+
+
+
+
+
 
 
 # def addRolesAuthorities(roleUuid, AuthoritiesUuid):
@@ -204,5 +239,35 @@ def deleteCertificateOwner(certUuids):
     return(res)
 
     
+
+################## RB init configuration ##################### 
+
+def getResources(): # Get list of resources (acmeAcocounts, authorites, raprofiles) with their permissions (detail, list, delete ,...)
+    api_url = api_url_base + "api/v1/auth/resources"
+    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    r_json = res.json()
+    return(r_json)
+
+def getObjectOfResources(): # Get objects (ejbca, msadcs,..) of the resources (authority) 
+    api_url = api_url_base + "api/v1/auth/resources/authorities/objects"
+    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    r_json = res.json()
+    return(r_json)
+
+
+# a = getResources()
+# print (a)
+
+# b = getObjectOfResources()
+# print (b)
+
+## main
+
+role  = createRole("RB")
+print(role)
+uuid = role["uuid"]
+
+editedRole = addRolesRBPermissions(uuid)
+
 
 
