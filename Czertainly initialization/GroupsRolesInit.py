@@ -10,11 +10,16 @@ api_url_base = "https://katka1.3key.company/"
 
 
 ## init Authority and RA profile attributes - Authority and RA profile for issuing client certificates 
-initAuthorityUuid = "29ff8e25-7529-4f72-b16f-61ea61e10508"
+initAuthorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
 # initAuthorityUuid = None
-initAuthorityName = "MS ADCS https"
-initRAProfileUuid = "5c358df9-f421-4970-91ed-782f88d5dcd8"
-initRAProfileName = "client-certificate"
+initAuthorityName = "Vault CA"
+initRAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
+initRAProfileName = "Vault profile first"
+
+# RAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
+# RAProfileName = "Vault profile first"
+# authorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
+# authorityName = "Vault CA"
 
 
 # Function to get data from API
@@ -97,6 +102,9 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
 
 
 ## RB intit configuration - rb_group_1 - intit users can do all operations with certificates and can initialize discovery (both for specific HashiCorp Vault CA)
+## pridat do authorities 
+
+
 
 def addRolesRBPermissions(uuid): # add permissions to work with certificates
     api_url = api_url_base + "/api/v1/roles"
@@ -121,27 +129,57 @@ def addRolesRBPermissions(uuid): # add permissions to work with certificates
     return(r_json)
 
 
+RAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
+RAProfileName = "Vault profile first"
+authorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
+authorityName = "Vault CA"
+resourceAuthorityUuid = "b8e2bda3-c791-4641-bc0d-8a68315692cc"
+resourceRAProfileUuid = "0d504c55-b76f-4259-a051-9d8b853dfa33"
+
+
+## Add new authority and RA Profiles to Role (ted to nepotrebujeme)
+
+def addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfileName):
+    api_url = api_url_base + "/api/v1/roles"
+    data = [{"uuid": RAProfileUuid, "name": RAProfileName, "allow": ["list", "detail", "delete"]}]
+    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceRAProfileUuid + "/objects" 
+    res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    return(res)
 
 
 
+def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName):
+    api_url = api_url_base + "/api/v1/roles"
+    data = [{"uuid": authorityUuid, "name": authorityName, "allow": ["list", "detail", "delete"]}]
+    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceAuthorityUuid + "/objects" 
+    res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    return(res)
 
 
-# def addRolesAuthorities(roleUuid, AuthoritiesUuid):
-#     api_url = "https://demo.czertainly.online/api/v1/roles"
-#     headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-#     authoritiesObjects = {"uuid": "ce66c2fe-37c3-4bbe-9fbc-c20102ec5108", "name": "lab02-ADCS-https",  "allow": ["detail","list"]}
-#     # authoritiesObjects = [{"uuid": "d1976e01-712b-4816-a120-8dd5c3f464a8", "name": "ejbca.3key.company",  "allow": ["detail","list"]}]
 
-#     # RAProfilesObjects = [{"uuid": "d1fac75d-0c58-4331-ac40-944a76b73029","name": "RB-Team2", "allow": ["detail","list"]}]
-#     # authorities = {"name": "authorities",  "allowAllActions": False, "actions": [], "objects": authoritiesObjects}
-#     # RAProfiles = {"name": "raProfiles",  "allowAllActions": False, "actions": [], "objects": RAProfilesObjects}
+# def addRolesRBAuthorities(roleUuid):
+#     api_url = api_url_base + "/api/v1/roles"
+#     authoritiesObjects = [{"uuid": authorityuUid, "name": authorityName,  "allow": ["detail","list"]}]
+#     RAProfilesObjects = [{"uuid": RAProifleUuid ,"name": authorityName , "allow": ["detail","list"]}]
+    
+#     authorities = {"name": "authorities",  "allowAllActions": False, "actions": [], "objects": authoritiesObjects}
+#     RAProfiles = {"name": "raProfiles",  "allowAllActions": False, "actions": [], "objects": RAProfilesObjects}
 #     certificates = {"name": "certificates","allowAllActions": True, "actions": [],"objects": []}
-#     resources = [authoritiesObjects]
+#     resources = [authorities]
    
 #     data = {"allowAllResources": False, "resources": resources}
-#     res = requests.post(api_url + "/" + roleUuid + "/permissions/" + AuthoritiesUuid + "/objects" , headers=headers, cert=(cert_file, key_file), json = data)
+#     res = requests.post(api_url + "/" + roleUuid + "/permissions/" + resourceAuthorityUuid + "/objects" , headers=headers, cert=(cert_file, key_file), json = data)
 #     r_json = res.json()
 #     return(r_json)
+
+## Create Autohority
+
+# def createAuthority(type, name):
+#     if type == "vault":
+#       name  = "name"
+#       connectorUuid="c6d0352a-346d-4f6b-bc41-9a113eab97a5"
+#       kind="HVault"
+      
 
 
 #----------------------------------------------------------------------------------
@@ -263,11 +301,21 @@ def getObjectOfResources(): # Get objects (ejbca, msadcs,..) of the resources (a
 
 ## main
 
+
+
 role  = createRole("RB")
-print(role)
-uuid = role["uuid"]
+print("role", role)
+roleUuid = role["uuid"]
 
-editedRole = addRolesRBPermissions(uuid)
+RAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
+RAProfileName = "Vault profile first"
+authorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
+authorityName = "Vault CA"
+resourceAuthorityUuid = "b8e2bda3-c791-4641-bc0d-8a68315692cc"
+resourceRAProfileUuid = "0d504c55-b76f-4259-a051-9d8b853dfa33"
 
+editedRole = addRolesRBPermissions (roleUuid)
+editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfileName)
+editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
 
