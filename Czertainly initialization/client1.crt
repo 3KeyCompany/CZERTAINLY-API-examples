@@ -1,9 +1,3 @@
-Bag Attributes
-    localKeyID: FE E7 FB DC E8 10 BE 3B DD 2A 45 A2 28 E7 53 9C 31 CA 39 14 
-subject=C = CZ, ST = Czechia, L = CB, O = CF, OU = DEV, CN = CLIENT1
-
-issuer=C = CZ, ST = Czechia, L = CB, O = 3KEY, OU = DEV, CN = localhost
-
 -----BEGIN CERTIFICATE-----
 MIIDPTCCAiUCFBd+dfQuley5j4MetX3iewvIxHZDMA0GCSqGSIb3DQEBCwUAMF0x
 CzAJBgNVBAYTAkNaMRAwDgYDVQQIDAdDemVjaGlhMQswCQYDVQQHDAJDQjENMAsG
