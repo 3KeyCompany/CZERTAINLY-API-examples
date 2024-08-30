@@ -5,9 +5,16 @@ import uuid
 
 
 headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-cert_file = "admin-czertainly-lab09.crt"
-key_file = "admin-czertainly-lab09.key"
-api_url_base = "https://katka1.3key.company/"
+# cert_file = "admin-czertainly-lab09.crt"
+# key_file = "admin-czertainly-lab09.key"
+# api_url_base = "https://katka1.3key.company/"
+
+
+cert_file = "client1.crt"
+key_file = "client1.key"
+api_url_base = "https://katka4.3key.company/"
+
+
 
 
 ## init Authority and RA profile attributes - Authority and RA profile for issuing client certificates 
@@ -29,6 +36,10 @@ def listConnectors():
     r_json = res.json()
     return(r_json)
 
+def getConnectorUuid(connectorName):
+    for connector in listConnectors():
+        if connectorName == connector["name"]:
+            return(connector["uuid"])
 
 def approveConnector(connectorUuid):
     api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/approve"
@@ -200,7 +211,7 @@ def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorit
 
 # for RB create HashiCorp Vault CA
 
-def createVaultAuthority(name , vaultURL, roleID, roleSecret):
+def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     authorityValue = [{"data": vaultURL}]
     authority_url = {"uuid": "8a68156a-d1f5-4322-b2a5-26e872a6fc0e", "name": "authority_url", "label": "Vault URL", "type": "data", "contentType": "string", "content": authorityValue}
     roleIdValue = [{"data": roleID}]
@@ -210,12 +221,13 @@ def createVaultAuthority(name , vaultURL, roleID, roleSecret):
     roleSecretValue = [{"data": roleSecret}]
     role_secret = { "uuid": "60daa99e-5b08-4f36-8f51-d136ecba74e9","name": "role_secret","label": "Role Secret","type": "data","contentType": "string","content": roleSecretValue}
     attributes = [authority_url, role_id, credentials_type, role_secret]
-    connectorUuid = "c6d0352a-346d-4f6b-bc41-9a113eab97a5" # TODO pridat API nebo pujde "connectorName": "HashiCorp-Vault-Connector"???
+    # connectorUuid = "4b61c199-28b7-467e-a159-657278661bd1" # TODO pridat API nebo pujde "connectorName": "HashiCorp-Vault-Connector"???
     kind = "HVault"
-    data = { "name": name, "attributes": attributes, "connectorUuid": connectorUuid,"kind": kind}
+    data = { "name": name, "attributes": attributes, "connectorUuid": connectorUUid,"kind": kind}
     api_url = api_url_base + "/api/v1/authorities"
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
+    print(res)
     return(r_json)  
 
       
@@ -337,7 +349,7 @@ def deleteCertificateOwner(certUuids):
 
     
 
-################## RB init configuration ##################### 
+################## Resources, Objects ##################### 
 
 def getResources(): # Get list of resources (acmeAcocounts, authorites, raprofiles) with their permissions (detail, list, delete ,...)
     api_url = api_url_base + "api/v1/auth/resources"
@@ -350,6 +362,17 @@ def getObjectOfResources(): # Get objects (ejbca, msadcs,..) of the resources (a
     res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
+
+def getResourceUuid(resource): # Get Uuid of the resources (authority) 
+    for rsc in getResources():
+        if rsc["name"] == resource:
+            return (rsc["uuid"])
+    
+    api_url = api_url_base + "api/v1/auth/resources/authorities/objects"
+    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    r_json = res.json()
+    return(r_json)
+
 
 
 ################# RA profile, Authority details ###############
@@ -372,7 +395,6 @@ def activateAcmeforRaProfile (authorityUuid, raProfileUuid, acmeProfileUuid):
     api_url = api_url_base + "api/v1/authorities/" + authorityUuid + "/raProfiles/" + raProfileUuid + "/protocols/acme/activate/" + acmeProfileUuid
     data = { "issueCertificateAttributes": [], "revokeCertificateAttributes": []}
     res = requests.patch(api_url , headers=headers, cert=(cert_file, key_file), json = data)
-    print(res)
     return(res)
 
 ################### ACME Profile ##################################
@@ -392,67 +414,70 @@ def activateAcmeProfile(acmeProfileUuid):
     print(res)
     return(res)
 
-#######################################################################
-
+#################### main   ##################################
 
 
 # ## main
+
+#zapnout connectory
+
+connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
+enableConnectors(connectors)
+connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
+
 vaultAuthorityname = "API Vault CA"
 vaultURL = "https://katka2.3key.company:443"
 roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
 roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
 
-newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret)
+newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
 ## potrebujeme jen authority Uuid
-print(newVaultAuthority)
 authorityUuid = newVaultAuthority['uuid']
 
-vaultRaProfilename = "API Valut first"
-pkiEngine = "pki"
+vaultRaProfilename = "API Vault first"
+pkiEngine = "pki" 
 vaultRole = "first"
 newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
-print(newVaultRAProfile)
 raProfileUuid = newVaultRAProfile['uuid']
 
 
 # potrebujeme Authority name 
-authorityDetail = getAuthorityDetail(authorityUuid)
-print (authorityDetail)
+authorityDetail = getAuthorityDetail(authorityUuid) 
 authorityName = authorityDetail['name']
 
 # potrebujeme RA profile name 
 raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
 raProfileName = raProfileDetail['name']
 
-role  = createRole("RB")
-roleUuid = role["uuid"]
-print("role uuid", roleUuid)
 
-resourceAuthorityUuid = "b8e2bda3-c791-4641-bc0d-8a68315692cc"
-resourceRAProfileUuid = "0d504c55-b76f-4259-a051-9d8b853dfa33"
+## create role with permissions
+roleName = "RB"
+role  = createRole(roleName)
+roleUuid = role["uuid"]
+
+
+resourceAuthorityUuid = getResourceUuid("authorities")
+resourceRAProfileUuid = getResourceUuid("raProfiles")
+
 
 editedRole = addRolesRBPermissions (roleUuid)
 editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
 editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
+## craete group
+groupName = roleName
+groupEmail = "email@example.com"
+createGroup (groupName, groupEmail)
+
+## acme profile
+acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
+newAcmeProfile = createAcmeProfile(acmeProfileName)
+acmeProfileUuid = newAcmeProfile["uuid"]
+
+# activate ACME profile
+activateAcmeProfile(acmeProfileUuid)
+
+# activate ACME for RA Profile
+activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
 
 
-# ## acme profile
-# acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
-# newAcmeProfile = createAcmeProfile(acmeProfileName)
-# acmeProfileUuid = newAcmeProfile["uuid"]
-
-# # activate ACME profile
-# activateAcmeProfile(acmeProfileUuid)
-
-# # activate ACME for RA Profile
-# activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
-
-# # # zapnout connectory
-# # connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"] 
-# connectors = ["Cryptosense-Discovery-Provider"]
-# enableConnectors(connectors)
-
- 
-
-# uuid interaktivne
