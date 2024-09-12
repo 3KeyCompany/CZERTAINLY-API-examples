@@ -464,68 +464,69 @@ def activateAcmeProfile(acmeProfileUuid):
 #################### main   ##################################
 
 
-# ## main
+## main
 
-#zapnout connectory
+# zapnout connectory
 
-# connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
-# enableConnectors(connectors)
-# connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
+connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
+enableConnectors(connectors)
+connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
 
-# vaultAuthorityname = "API Vault CA"
-# vaultURL = "https://katka2.3key.company:443"
-# roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
-# roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
+vaultAuthorityname = "API Vault CA"
+vaultURL = "https://katka2.3key.company:443"
+roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
+roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
 
-# newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
-# ## potrebujeme jen authority Uuid
-# authorityUuid = newVaultAuthority['uuid']
+newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
+## potrebujeme jen authority Uuid
+authorityUuid = newVaultAuthority['uuid']
 
-# vaultRaProfilename = "API Vault first"
-# pkiEngine = "pki" 
-# vaultRole = "first"
-# newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
-# raProfileUuid = newVaultRAProfile['uuid']
-
-
-# # potrebujeme Authority name 
-# authorityDetail = getAuthorityDetail(authorityUuid) 
-# authorityName = authorityDetail['name']
-
-# # potrebujeme RA profile name 
-# raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
-# raProfileName = raProfileDetail['name']
+vaultRaProfilename = "API Vault first"
+pkiEngine = "pki" 
+vaultRole = "first"
+newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
+raProfileUuid = newVaultRAProfile['uuid']
 
 
-# ## create role with permissions
-# roleName = "RB"
-# role  = createRole(roleName)
-# roleUuid = role["uuid"]
+# potrebujeme Authority name 
+authorityDetail = getAuthorityDetail(authorityUuid) 
+authorityName = authorityDetail['name']
+
+# potrebujeme RA profile name 
+raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
+raProfileName = raProfileDetail['name']
 
 
-# resourceAuthorityUuid = getResourceUuid("authorities")
-# resourceRAProfileUuid = getResourceUuid("raProfiles")
+## create role with permissions
+roleName = "RB"
+role  = createRole(roleName)
+roleUuid = role["uuid"]
 
 
-# editedRole = addRolesRBPermissions (roleUuid)
-# editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
-# editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
-# ## craete group
-# groupName = roleName
-# groupEmail = "email@example.com"
-# createGroup (groupName, groupEmail)
+resourceAuthorityUuid = getResourceUuid("authorities")
+resourceRAProfileUuid = getResourceUuid("raProfiles")
 
-# ## acme profile
-# acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
-# newAcmeProfile = createAcmeProfile(acmeProfileName)
-# acmeProfileUuid = newAcmeProfile["uuid"]
 
-# # activate ACME profile
-# activateAcmeProfile(acmeProfileUuid)
+editedRole = addRolesRBPermissions (roleUuid)
+editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
+editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
-# # activate ACME for RA Profile
-# activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
+## craete group
+groupName = roleName
+groupEmail = "email@example.com"
+createGroup (groupName, groupEmail)
+
+## acme profile
+acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
+newAcmeProfile = createAcmeProfile(acmeProfileName)
+acmeProfileUuid = newAcmeProfile["uuid"]
+
+# activate ACME profile
+activateAcmeProfile(acmeProfileUuid)
+
+# activate ACME for RA Profile
+activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
 
 
 # # Create MS Authority
