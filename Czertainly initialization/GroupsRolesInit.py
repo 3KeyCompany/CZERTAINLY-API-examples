@@ -464,92 +464,108 @@ def activateAcmeProfile(acmeProfileUuid):
 #################### main   ##################################
 
 
-## main
+# ## main
 
-# zapnout connectory
+# # zapnout connectory
 
-connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
-enableConnectors(connectors)
-connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
+# connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
+# enableConnectors(connectors)
+# connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
 
-vaultAuthorityname = "API Vault CA"
-vaultURL = "https://katka2.3key.company:443"
-roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
-roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
+# vaultAuthorityname = "API Vault CA"
+# vaultURL = "https://katka2.3key.company:443"
+# roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
+# roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
 
-newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
-## potrebujeme jen authority Uuid
-authorityUuid = newVaultAuthority['uuid']
+# newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
+# ## potrebujeme jen authority Uuid
+# authorityUuid = newVaultAuthority['uuid']
 
-vaultRaProfilename = "API Vault first"
-pkiEngine = "pki" 
-vaultRole = "first"
-newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
-raProfileUuid = newVaultRAProfile['uuid']
-
-
-# potrebujeme Authority name 
-authorityDetail = getAuthorityDetail(authorityUuid) 
-authorityName = authorityDetail['name']
-
-# potrebujeme RA profile name 
-raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
-raProfileName = raProfileDetail['name']
+# vaultRaProfilename = "API Vault first"
+# pkiEngine = "pki" 
+# vaultRole = "first"
+# newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
+# raProfileUuid = newVaultRAProfile['uuid']
 
 
-## create role with permissions
-roleName = "RB"
-role  = createRole(roleName)
-roleUuid = role["uuid"]
+# # potrebujeme Authority name 
+# authorityDetail = getAuthorityDetail(authorityUuid) 
+# authorityName = authorityDetail['name']
+
+# # potrebujeme RA profile name 
+# raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
+# raProfileName = raProfileDetail['name']
+
+
+# ## create role with permissions
+# roleName = "RB"
+# role  = createRole(roleName)
+# roleUuid = role["uuid"]
 
 
 
-resourceAuthorityUuid = getResourceUuid("authorities")
-resourceRAProfileUuid = getResourceUuid("raProfiles")
+# resourceAuthorityUuid = getResourceUuid("authorities")
+# resourceRAProfileUuid = getResourceUuid("raProfiles")
 
 
-editedRole = addRolesRBPermissions (roleUuid)
-editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
-editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
+# editedRole = addRolesRBPermissions (roleUuid)
+# editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
+# editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
-## craete group
-groupName = roleName
-groupEmail = "email@example.com"
-createGroup (groupName, groupEmail)
+# ## craete group
+# groupName = roleName
+# groupEmail = "email@example.com"
+# createGroup (groupName, groupEmail)
 
-## acme profile
-acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
-newAcmeProfile = createAcmeProfile(acmeProfileName)
-acmeProfileUuid = newAcmeProfile["uuid"]
+# ## acme profile
+# acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
+# newAcmeProfile = createAcmeProfile(acmeProfileName)
+# acmeProfileUuid = newAcmeProfile["uuid"]
 
-# activate ACME profile
-activateAcmeProfile(acmeProfileUuid)
+# # activate ACME profile
+# activateAcmeProfile(acmeProfileUuid)
 
-# activate ACME for RA Profile
-activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
-
-
-# # Create MS Authority
-
-# create cerdentials
-credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
-
-msCredentialsName = "API ms adcs"
-username = "czertainly-unpriv"
-password = "3KeyPKI2000"
-
-msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
+# # activate ACME for RA Profile
+# activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
 
 
-# Create MS Authority instance 
+# # # Create MS Authority
 
-pyadcsConnectorUuid = getConnectorUuid("PyADCS-Connector")
+# # create cerdentials
+# credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
 
-msAdcsName = "API MS ADCS"
-msAdcsCredentialsUuid = msCredentials["uuid"]
-https = True
-msAdcsURL = "winlab01.3key.company"
+# msCredentialsName = "API ms adcs"
+# username = "czertainly-unpriv"
+# password = "3KeyPKI2000"
 
-msAuthority = createMsAuthority(msAdcsName, msAdcsURL, msAdcsCredentialsUuid, pyadcsConnectorUuid)
+# msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
 
 
+# # Create MS Authority instance 
+
+# pyadcsConnectorUuid = getConnectorUuid("PyADCS-Connector")
+
+# msAdcsName = "API MS ADCS"
+# msAdcsCredentialsUuid = msCredentials["uuid"]
+# https = True
+# msAdcsURL = "winlab01.3key.company"
+
+# msAuthority = createMsAuthority(msAdcsName, msAdcsURL, msAdcsCredentialsUuid, pyadcsConnectorUuid)
+
+
+import requests
+
+url = 'https://katka1.3key.company/kc/auth/realms/master/protocol/openid-connect/token'
+headers = {
+    'Content-Type': 'application/x-www-form-urlencoded'
+}
+data = {
+    'username': 'admin',
+    'password': 'admin',
+    'grant_type': 'password',
+    'client_id': 'admin-cli'
+}
+
+response = requests.post(url, headers=headers, data=data)
+
+print(response.text)
