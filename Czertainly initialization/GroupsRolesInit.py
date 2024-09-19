@@ -1,4 +1,4 @@
-## This scripts includes
+## This scripts includes API fo working with CZERTAINLY - roles, groups management and RA Profile, Authorities management 
 
 # importing libraries
 import requests
@@ -7,31 +7,19 @@ import uuid
 
 
 headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+
+################ Authorization ############################################
+cert_file = "client1.crt" # Specify certificates for CZERTAINLY authentication
+key_file = "client1.key"
+
+api_url_base = "https://katka1.3key.company/" # Specify CZERTAINLY URL
+
 # cert_file = "admin-czertainly-lab09.crt"
 # key_file = "admin-czertainly-lab09.key"
 # api_url_base = "https://katka1.3key.company/"
 
 
-cert_file = "client1.crt"
-key_file = "client1.key"
-api_url_base = "https://katka1.3key.company/"
-
-
-
-
-## init Authority and RA profile attributes - Authority and RA profile for issuing client certificates 
-initAuthorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
-# initAuthorityUuid = None
-initAuthorityName = "Vault CA"
-initRAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
-initRAProfileName = "Vault profile first"
-
-# RAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
-# RAProfileName = "Vault profile first"
-# authorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
-# authorityName = "Vault CA"
-
-################ Connectors #############################
+################ Connectors ############################################
 def listConnectors():
     api_url = api_url_base + "/api/v1/connectors"
     res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
@@ -57,15 +45,6 @@ def enableConnectors(listOfConnectorsToApprove):
 
 
 #################################################################
-
-# Function to get data from API
-def get_RA_profiles():
-    api_url = api_url_base + "/api/v1/raProfiles"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
-    r_json = res.json()
-    return(r_json)
-
-
 # List Roles
 def listRoles():
     api_url = api_url_base + "/api/v1/roles"
@@ -80,7 +59,6 @@ def createRole(name):
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     return(r_json)
-
 
 
 # Delete Role
@@ -119,8 +97,6 @@ def addRolesAuthorities(roleUuid, resourcesUuid, authorityUuid, authorityName):
 
 
 
-
-
 # -------------------------------------------------------------------------------------------------
 
 
@@ -137,8 +113,6 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
     return(r_json)
 
 
-## RB intit configuration - rb_group_1 - intit users can do all operations with certificates and can initialize discovery (both for specific HashiCorp Vault CA)
-## pridat do authorities 
 
 
 
@@ -189,6 +163,15 @@ def addRolesRBPermissions(uuid): # add permissions to work with certificates
 
 ## Add new authority and RA Profiles to Role (ted to nepotrebujeme)
 
+
+def get_RA_profiles():
+    api_url = api_url_base + "/api/v1/raProfiles"
+    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    r_json = res.json()
+    return(r_json)
+
+
+
 def addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfileName):
     api_url = api_url_base + "/api/v1/roles"
     data = [{"uuid": RAProfileUuid, "name": RAProfileName, "allow": ["list", "detail"]}]
@@ -209,9 +192,9 @@ def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorit
 
 
 
-############ Create Authority ##############################
+############ Create Authority #####################################################
 
-# for RB create HashiCorp Vault CA
+# Create HashiCorp Vault CA
 
 def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     authorityValue = [{"data": vaultURL}]
@@ -231,6 +214,7 @@ def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     print(res)
     return(r_json)  
 
+# Create MS ADCS Authority
 
 def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
     authority_winrm_port_Value = [{"data": 5986}]
@@ -261,13 +245,10 @@ def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
     return(r_json)  
 
 
-
-
-
       
       
 ############### Create RA Profile ############################################
-## for RB create RA profile for HashiCorp Vault CA 
+## create RA profile for HashiCorp Vault CA 
 
 def createVaultRAProfile(name, authorityUuid, pkiEngine, vaultRole):
     authorityInstanceUuid = authorityUuid
@@ -297,7 +278,7 @@ def listGroup():
     r_json = res.json()
     return(r_json)
 
-# Create Group (s emailem)
+# Create Group (with email)
 def createGroup(name, email):
     api_url = api_url_base + "/api/v1/groups"
     data = { "name": name, "email": email}
@@ -321,8 +302,12 @@ def editGroup(name, email, uuid):
     return(r_json)
 
 
-
 ############### Create object (new role, new group) ############################
+
+initAuthorityUuid
+initRAProfileUuid
+initRAProfileName
+initAuthorityName
 
 # based on name and email create group and role
 def createObject(name, email):
@@ -363,7 +348,6 @@ def deleteObject(name):
 
 # Delete certificate owner - the change will be applied to all certificates in the inventory
 
-
 # List all certificates UUIDs
 def listCertificatesUuids():
     api_url = api_url_base + "/api/v1/certificates"
@@ -371,7 +355,6 @@ def listCertificatesUuids():
     r_json = res.json()
     uuids = [cert['uuid'] for cert in r_json['certificates']]
     return(uuids)
-
 
 
 
@@ -463,111 +446,4 @@ def activateAcmeProfile(acmeProfileUuid):
     print(res)
     return(res)
 
-#################### main   ##################################
 
-
-# ## main
-
-# # zapnout connectory
-
-# connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"]
-# enableConnectors(connectors)
-# connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
-
-# vaultAuthorityname = "API Vault CA"
-# vaultURL = "https://katka2.3key.company:443"
-# roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83"
-# roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887"
-
-# newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
-# ## potrebujeme jen authority Uuid
-# authorityUuid = newVaultAuthority['uuid']
-
-# vaultRaProfilename = "API Vault first"
-# pkiEngine = "pki" 
-# vaultRole = "first"
-# newVaultRAProfile = createVaultRAProfile(vaultRaProfilename, authorityUuid, pkiEngine, vaultRole)
-# raProfileUuid = newVaultRAProfile['uuid']
-
-
-# # potrebujeme Authority name 
-# authorityDetail = getAuthorityDetail(authorityUuid) 
-# authorityName = authorityDetail['name']
-
-# # potrebujeme RA profile name 
-# raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
-# raProfileName = raProfileDetail['name']
-
-
-# ## create role with permissions
-# roleName = "RB"
-# role  = createRole(roleName)
-# roleUuid = role["uuid"]
-
-
-
-# resourceAuthorityUuid = getResourceUuid("authorities")
-# resourceRAProfileUuid = getResourceUuid("raProfiles")
-
-
-# editedRole = addRolesRBPermissions (roleUuid)
-# editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
-# editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
-
-# ## craete group
-# groupName = roleName
-# groupEmail = "email@example.com"
-# createGroup (groupName, groupEmail)
-
-# ## acme profile
-# acmeProfileName = "APIACME"  ## ve jmenu nesmi by mezery
-# newAcmeProfile = createAcmeProfile(acmeProfileName)
-# acmeProfileUuid = newAcmeProfile["uuid"]
-
-# # activate ACME profile
-# activateAcmeProfile(acmeProfileUuid)
-
-# # activate ACME for RA Profile
-# activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
-
-
-# # # Create MS Authority
-
-# # create cerdentials
-# credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
-
-# msCredentialsName = "API ms adcs"
-# username = "czertainly-unpriv"
-# password = "3KeyPKI2000"
-
-# msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
-
-
-# # Create MS Authority instance 
-
-# pyadcsConnectorUuid = getConnectorUuid("PyADCS-Connector")
-
-# msAdcsName = "API MS ADCS"
-# msAdcsCredentialsUuid = msCredentials["uuid"]
-# https = True
-# msAdcsURL = "winlab01.3key.company"
-
-# msAuthority = createMsAuthority(msAdcsName, msAdcsURL, msAdcsCredentialsUuid, pyadcsConnectorUuid)
-
-
-import requests
-
-url = 'https://katka1.3key.company/kc/auth/realms/master/protocol/openid-connect/token'
-headers = {
-    'Content-Type': 'application/x-www-form-urlencoded'
-}
-data = {
-    'username': 'admin',
-    'password': 'admin',
-    'grant_type': 'password',
-    'client_id': 'admin-cli'
-}
-
-response = requests.post(url, headers=headers, data=data)
-
-print(response.text)

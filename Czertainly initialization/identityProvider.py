@@ -1,5 +1,4 @@
 ## This script includes API to retrieve Keycloak access token and import Identity Provider configuration 
-
 import requests
 import json
 
