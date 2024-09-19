@@ -1,6 +1,9 @@
-from ldap import ldap_groups
+## This script implements a synchronization between LDAP and CZERTAINLY database - specifically CZERTAINLY groups and roles regarding to data in LDAP  
+
+from ldap-groups.py import ldap_groups
 from GroupsRolesInit import * 
 
+## reading CZERTAINLY existing groups 
 czertainly_groups = []
 for group in listGroup():
     czertainly_groups.append({"name": group['name'],"email": group['email']})
@@ -10,7 +13,7 @@ czertainly_group_emails = [item['email'] for item in czertainly_groups]
 
 
 
-## add ldap group, edit ldap group email 
+## add ldap group, or edit ldap group email 
 
 for ldap_group in ldap_groups:
     group_name = ldap_group['name']
@@ -18,14 +21,14 @@ for ldap_group in ldap_groups:
 
     if group_name in czertainly_group_names:
         czertainly_group_email = czertainly_group_emails[czertainly_group_names.index(group_name)]
-        if group_email != czertainly_group_email:
+        if group_email != czertainly_group_email: ## LDAP contains different (new) email
             print("new email", group_email)
             editobject = editObject(group_name,group_email)
     else:
-        print("new group", group_name)
+        print("new group", group_name)  ## LDAP contains a new groups
         newobject = createObject (group_name, group_email)
     
-## removing of redundant groups (the groups is in CZERTAINLY but not in LDAP)
+## removing of redundant groups (the groups are in CZERTAINLY but not in LDAP)
 ldap_groups_names = [item['name'] for item in ldap_groups]
      
 for czertainly_group in [item['name'] for item in czertainly_groups]:

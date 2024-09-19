@@ -1,4 +1,6 @@
 import ldap3
+## This script implements connection to LDAP with reading groups objects
+
 
 # source
 # https://gist.github.com/anilpai/01f1bda55d0d2fe0efa45cd668c00fc6
