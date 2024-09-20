@@ -17,11 +17,11 @@ The class `Ldap` includes three functions:
 | get_groups | From LDAP get all objects of type GROUP - specifically group name and email
 
 
-## GroupsRolesInit.py
+## CzertainlyAPIs.py
 
 This scripts includes API for working with CZERTAINLY - roles, groups, RA Profile and Authorities management.
 
-Both **Initialization.py** and **DatabaseSync.py** scripts include references to **GroupsRolesInit.py**.
+Both **Initialization.py** and **DatabaseSync.py** scripts include references to **CzertainlyAPIs.py**.
 
 ## Initialization.py 
 

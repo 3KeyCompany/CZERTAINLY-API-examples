@@ -1,6 +1,6 @@
 ## This script implements a basic CZERTAINLY configuration including creating roles, groups, RA profile, Authorirites. 
 
-from GroupsRolesInit import * 
+from CzertainlyAPIs import * 
 
 
 ## approve connectors

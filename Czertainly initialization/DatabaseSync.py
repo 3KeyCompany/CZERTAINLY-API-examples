@@ -1,7 +1,7 @@
 ## This script implements a synchronization between LDAP and CZERTAINLY database - specifically CZERTAINLY groups and roles regarding to data in LDAP  
 
 from LdapGroups import ldap_groups
-from GroupsRolesInit import * 
+from CzertainlyAPIs import * 
 
 ## reading existing groups in CZERTAINLY
 czertainly_groups = []
