@@ -120,12 +120,7 @@ def addRolesRBPermissions(uuid):
     discoveries = {"name": "discoveries","allowAllActions": True, "actions": [],"objects": []}
     roles = {"name": "roles","allowAllActions": False, "actions": ["list"],"objects": []}
     triggers = {"name": "triggers","allowAllActions": False, "actions": ["detail","list"],"objects": []}
-    
-    
-    # vaultRAProfile = detail, list
-    # raProfile = detail, list, update
-    # vaultCA = detail, list, members
-    
+        
     resources = [certificates, locations, acmeAccounts,acmeProfiles,approvalProfiles,authorities,attributes,connectors,complianceProfiles,credentials,discoveries,groups,raProfiles,roles,triggers,users]
     data = {"allowAllResources": False, "resources": resources}
     res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
@@ -215,7 +210,6 @@ def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
 
 def createVaultRAProfile(name, authorityUuid, pkiEngine, vaultRole):
     authorityInstanceUuid = authorityUuid
-    # authorityInstanceName =  "Vault CA"
     raProfileRoleValue = [{"reference": vaultRole,"data": vaultRole}]
     ra_profile_role = {"uuid": "389dfa3c-cf45-458e-bca4-507d11b2858c","name": "ra_profile_role", "label": "Role", "type": "data", "contentType": "string", "content": raProfileRoleValue}
     raProfileEngineValue = [{ "reference": pkiEngine, "data": { "engineName": pkiEngine}}]
