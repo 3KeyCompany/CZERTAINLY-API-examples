@@ -1,13 +1,13 @@
-This set of scripts demonstrates an initial setup of CZERTAINLY access control and how to synchronize the list of CZERTAINLY user groups with user groups in LDAP.
+This set of scripts demonstrates an initial setup of CZERTAINLY access control and synchronizes the list of CZERTAINLY user groups with user groups in LDAP.
 
 
 ## LdapGroups.py
 
-The purpose is to connect to the LDAP server and load a list of all dedicated user groups that we want to synchronize with CZERTAINLY.
+The purpose of this script is to connect to the LDAP server and retrieve a list of all user groups designated for synchronization with CZERTAINLY.
 
-This script includes a class `Ldap` used for connection to the LDAP server with user authentication. 
+It includes a class `Ldap`, which handles the connection to the LDAP server and user authentication.
 
-In case of successful authentication to LDAP we can search any object of type GROUP. 
+Upon successful authentication, the script allows searching for any objects of type `GROUP`. 
 
 The class `Ldap` includes three functions:
 | Function | 	 Description |
@@ -19,12 +19,13 @@ The class `Ldap` includes three functions:
 
 ## GroupsRolesInit.py
 
-GroupsRolesInit.py includes functions of CZERTAINLY APIs used for Group, Ra Profile, and Roles management.
+This scripts includes API for working with CZERTAINLY - roles, groups, RA Profile and Authorities management.
 
+Both **Initialization.py** and **DatabaseSync.py** scripts include references to **GroupsRolesInit.py**.
 
 ## Initialization.py 
 
-This script implements a basic CZERTAINLY configuration including creating roles, groups, RA profile, Authorirites. 
+This script implements a basic CZERTAINLY configuration including approving connectors, creating roles with specifiv permission, groups, RA profile and Authorirites. 
 
 ## DatabaseSync.py
 
@@ -39,6 +40,5 @@ The synchronization includes:
 
 This script includes API to retrieve Keycloak access token and import Identity Provider configuration. 
 
- The function getAuthenticationToken using username and password retrieve Keycloak admin access token (token is required for another APIs)
- The function createIdentityProviderInstance import Identity Provider configuration, for authorization provide admin access token 
- Includes an example of SAML identity provider.
+The function **getAuthenticationToken** gets username and password retrieve Keycloak admin access token.
+The function **createIdentityProviderInstance** imports Identity Provider configuration, for authorization admin access token is provided.
