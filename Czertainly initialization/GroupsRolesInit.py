@@ -1,4 +1,4 @@
-## This scripts includes API fo working with CZERTAINLY - roles, groups management and RA Profile, Authorities management 
+## This scripts includes API for working with CZERTAINLY - roles, groups management and RA Profile, Authorities management 
 
 # importing libraries
 import requests
@@ -34,17 +34,17 @@ def getConnectorUuid(connectorName):
 def approveConnector(connectorUuid):
     api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/approve"
     res = requests.put(api_url, headers=headers, cert=(cert_file, key_file))
-    print(res)
     return(res)
 
 def enableConnectors(listOfConnectorsToApprove):
     for connector in listConnectors():
-        print(connector["name"])
         if connector["name"] in listOfConnectorsToApprove:
-            approveConnector(connector["uuid"])  
+            res = approveConnector(connector["uuid"])
+            print("Approving Connector ", connector["name"], res)
+              
 
 
-#################################################################
+################ Roles ################################################
 # List Roles
 def listRoles():
     api_url = api_url_base + "/api/v1/roles"
@@ -58,6 +58,7 @@ def createRole(name):
     data = { "name": name}
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
+    print("Creating Role...", res)
     return(r_json)
 
 
@@ -67,7 +68,7 @@ def deleteRole(uuid):
     res = requests.delete(api_url + "/" + uuid, headers=headers, cert=(cert_file, key_file))
     return(res)
 
-# Assign Permissions to Role ---------------------
+############### Roles Permissions ##########################################
 
 # Get Role Permissions
 def getRolePermissions(uuid):
@@ -77,31 +78,7 @@ def getRolePermissions(uuid):
     return(r_json)
 
 
-## Add new authority and RA Profiles to Role (ted to nepotrebujeme)
-
-def addRolesRAProfiles(roleUuid, resourcesUuid, RAProfileUuid, RAProfileName):
-    api_url = api_url_base + "/api/v1/roles"
-    data = {"uuid": RAProfileUuid, "name": RAProfileName, "allow": ["list", "detail"]}
-    api_url = api_url + "/" + roleUuid + "/permissions/" + resourcesUuid + "/objects/" + RAProfileUuid
-    res = requests.put(api_url , headers=headers, cert=(cert_file, key_file), json = data)
-    return(res)
-
-
-
-def addRolesAuthorities(roleUuid, resourcesUuid, authorityUuid, authorityName):
-    api_url = api_url_base + "/api/v1/roles"
-    data = {"uuid": authorityUuid, "name": authorityName, "allow": ["list", "detail"]}
-    api_url = api_url + "/" + roleUuid + "/permissions/" + resourcesUuid + "/objects/" + authorityUuid
-    res = requests.put(api_url , headers=headers, cert=(cert_file, key_file), json = data)
-    return(res)
-
-
-
-# -------------------------------------------------------------------------------------------------
-
-
-# Add permissions to Role - zakladni nastaveni roli pro koncove uzivatele
-## pristup k certifikatum, (pristup k vlastni grupe)
+# Add working with certificate to Role permissions
 
 def addRolesCertificates(uuid): # add permissions to work with certificates
     api_url = api_url_base + "/api/v1/roles"
@@ -114,9 +91,15 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
 
 
 
+# Add initialized role permissions including:
+## working with certificates
+## working with acme 
+## working with ra profiles
+## working with authorities
 
+## Note: Most of permissions are read and list only. These permissions allow basic CZERTAINLY functions for CZERTAINLY users (not CZERTAINLY admins).
 
-def addRolesRBPermissions(uuid): # add permissions to work with certificates
+def addRolesRBPermissions(uuid):
     api_url = api_url_base + "/api/v1/roles"
     certificates = {"name": "certificates","allowAllActions": True, "actions": [],"objects": []}
     locations = {"name": "locations","allowAllActions": False, "actions": ["detail","list"],"objects": []}
@@ -143,43 +126,23 @@ def addRolesRBPermissions(uuid): # add permissions to work with certificates
     # raProfile = detail, list, update
     # vaultCA = detail, list, members
     
-    
     resources = [certificates, locations, acmeAccounts,acmeProfiles,approvalProfiles,authorities,attributes,connectors,complianceProfiles,credentials,discoveries,groups,raProfiles,roles,triggers,users]
-    # resources = [certificates, locations, acmeAccounts,acmeProfiles,approvalProfiles,authorities,attributes]
     data = {"allowAllResources": False, "resources": resources}
     res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
-    print("zakladni", res)
     r_json = res.json()
+    print("Adding roles permissions...", res)
     return(r_json)
 
 
-# RAProfileUuid = "be8aa70c-5914-4ac2-8a3f-9be19132bee9"
-# RAProfileName = "Vault profile first"
-# authorityUuid = "8cfa857e-5d5f-4966-9bea-189477f3193a"
-# authorityName = "Vault CA"
-# resourceAuthorityUuid = "b8e2bda3-c791-4641-bc0d-8a68315692cc"
-# resourceRAProfileUuid = "0d504c55-b76f-4259-a051-9d8b853dfa33"
-
-
-## Add new authority and RA Profiles to Role (ted to nepotrebujeme)
-
-
-def get_RA_profiles():
-    api_url = api_url_base + "/api/v1/raProfiles"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
-    r_json = res.json()
-    return(r_json)
-
-
+## Add new authority and RA Profiles to Role permissions
 
 def addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfileName):
     api_url = api_url_base + "/api/v1/roles"
     data = [{"uuid": RAProfileUuid, "name": RAProfileName, "allow": ["list", "detail"]}]
     api_url = api_url + "/" + roleUuid + "/permissions/" + resourceRAProfileUuid + "/objects" 
     res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
-    print("raprofile", res)
+    print("Adding RA Profiles permissions...", res)
     return(res)
-
 
 
 def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName):
@@ -187,7 +150,7 @@ def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorit
     data = [{"uuid": authorityUuid, "name": authorityName, "allow": ["list", "detail", "members"]}]
     api_url = api_url + "/" + roleUuid + "/permissions/" + resourceAuthorityUuid + "/objects" 
     res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
-    print("autorita", res)
+    print("Adding Authorities permissions...", res)
     return(res)
 
 
@@ -211,7 +174,7 @@ def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     api_url = api_url_base + "/api/v1/authorities"
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
-    print(res)
+    print("Creating Vault Authority...",res)
     return(r_json)  
 
 # Create MS ADCS Authority
@@ -241,7 +204,7 @@ def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
     api_url = api_url_base + "/api/v1/authorities"
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
-    print(res)
+    print("Creating MS ADCS Authority...",res)
     return(r_json)  
 
 
@@ -264,6 +227,7 @@ def createVaultRAProfile(name, authorityUuid, pkiEngine, vaultRole):
     api_url = api_url_base + "/api/v1/authorities/" + authorityUuid + "/raProfiles"
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
+    print("Creating Vault RA profile...",res)
     return(r_json)  
    
 
@@ -284,6 +248,7 @@ def createGroup(name, email):
     data = { "name": name, "email": email}
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
     r_json = res.json()
+    print("Creating Group...",res)
     return(r_json)
 
 # Delete Group
@@ -302,23 +267,15 @@ def editGroup(name, email, uuid):
     return(r_json)
 
 
-############### Create object (new role, new group) ############################
+############### Create, Edit, Delete object (role, group) ############################
 
-initAuthorityUuid
-initRAProfileUuid
-initRAProfileName
-initAuthorityName
+## Note: these APIs are used in DatabaseSync.py script
 
 # based on name and email create group and role
 def createObject(name, email):
     role  = createRole(name)
     uuid = role["uuid"]
     addRolesCertificates (uuid)
-    if (initAuthorityUuid and initRAProfileUuid != None):
-        resourcesAuthorityUuid = "b8e2bda3-c791-4641-bc0d-8a68315692cc"
-        resourcesRAProfileUuid = "0d504c55-b76f-4259-a051-9d8b853dfa33"
-        addRolesAuthorities(uuid, resourcesAuthorityUuid, initAuthorityUuid, initAuthorityName)
-        addRolesRAProfiles (uuid, resourcesRAProfileUuid, initRAProfileUuid, initRAProfileName)
     createGroup (name, email)
 
 
@@ -401,7 +358,7 @@ def createBasicCredentials (name, username, password, connectorUUid ):
     attributes = [usernameAttribute, passwordAttribute]
     data = { "name": name, "kind": "Basic", "attributes": attributes, "connectorUuid": connectorUUid}
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
-    print(res)
+    print("Creating Basic Credentials...",res)
     r_json = res.json()
     return(r_json)
     
@@ -427,6 +384,7 @@ def activateAcmeforRaProfile (authorityUuid, raProfileUuid, acmeProfileUuid):
     api_url = api_url_base + "api/v1/authorities/" + authorityUuid + "/raProfiles/" + raProfileUuid + "/protocols/acme/activate/" + acmeProfileUuid
     data = { "issueCertificateAttributes": [], "revokeCertificateAttributes": []}
     res = requests.patch(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    print("Activating ACME for RA profile...",res)
     return(res)
 
 ################### ACME Profile ##################################
@@ -435,15 +393,14 @@ def createAcmeProfile(name):
     api_url = api_url_base + "api/v1/acmeProfiles"
     data = { "name": name,  "enabled": True}
     res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
-    print(res)
+    print("Creating ACME Profile...",res)
     r_json = res.json()
     return(r_json)
 
 def activateAcmeProfile(acmeProfileUuid):
     api_url = api_url_base + "api/v1/acmeProfiles/" + acmeProfileUuid + "/enable"
     res = requests.patch(api_url, headers=headers, cert=(cert_file, key_file))
-    # r_json = res.json()
-    print(res)
+    print("Activating ACME profile...",res)
     return(res)
 
 

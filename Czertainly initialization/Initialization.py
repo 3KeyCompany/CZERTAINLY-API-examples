@@ -73,7 +73,7 @@ credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
 
 msCredentialsName = "API ms adcs" # specify name of the credentials
 username = "czertainly-unpriv" # enter username of the given Windows user 
-password = "password" # enter password of the given Windows user 
+password = "3KeyPKI2000" # enter password of the given Windows user 
 
 msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
 

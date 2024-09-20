@@ -3,7 +3,7 @@
 from LdapGroups import ldap_groups
 from GroupsRolesInit import * 
 
-## reading CZERTAINLY existing groups 
+## reading existing groups in CZERTAINLY
 czertainly_groups = []
 for group in listGroup():
     czertainly_groups.append({"name": group['name'],"email": group['email']})
@@ -13,7 +13,11 @@ czertainly_group_emails = [item['email'] for item in czertainly_groups]
 
 
 
-## add ldap group, or edit ldap group email 
+## synchronization between LDAP and CZERTAINLY database
+# if a new group appears in LDAP then the group is added to CZERTAINLY. 
+# if a group email has been changed in LDAP then the group email is edited in CZERTAINLY
+# if some group has been deleted from LDAP then the group is deleted CZERTAINLY
+
 
 for ldap_group in ldap_groups:
     group_name = ldap_group['name']
@@ -36,7 +40,6 @@ for czertainly_group in [item['name'] for item in czertainly_groups]:
         print("group to remove", czertainly_group)
         deleteobject = deleteObject(czertainly_group)
      
-     
-     
+      
 ## delete owner for all certificates      
 deleteCertificateOwner(listCertificatesUuids())     

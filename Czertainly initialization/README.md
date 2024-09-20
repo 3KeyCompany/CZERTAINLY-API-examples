@@ -1,6 +1,7 @@
 This set of scripts demonstrates an initial setup of CZERTAINLY access control and how to synchronize the list of CZERTAINLY user groups with user groups in LDAP.
 
-## ldap.py
+
+## LdapGroups.py
 
 The purpose is to connect to the LDAP server and load a list of all dedicated user groups that we want to synchronize with CZERTAINLY.
 
@@ -21,11 +22,23 @@ The class `Ldap` includes three functions:
 GroupsRolesInit.py includes functions of CZERTAINLY APIs used for Group, Ra Profile, and Roles management.
 
 
+## Initialization.py 
 
-## main.py 
+This script implements a basic CZERTAINLY configuration including creating roles, groups, RA profile, Authorirites. 
+
+## DatabaseSync.py
+
 This script is used to synchronize data from LDAP and data in CZERTAINLY. 
 The synchronization includes: 
 
 - The script checks whether a new group appears in LDAP, and then the groups are added to CZERTAINLY.
 - The script checks whether all emails in LDAP correspond to group emails in CZERTAINLY. In case of any changes in LDAP, the change will be reflected in CZERTAINLY.
 - The script checks if there are any redundant groups in CZERTAINLY compared to LDAP. The redundant groups will be removed. 
+
+## identityProvider.py
+
+This script includes API to retrieve Keycloak access token and import Identity Provider configuration. 
+
+ The function getAuthenticationToken using username and password retrieve Keycloak admin access token (token is required for another APIs)
+ The function createIdentityProviderInstance import Identity Provider configuration, for authorization provide admin access token 
+ Includes an example of SAML identity provider.

@@ -21,6 +21,7 @@ def createIdentityProviderInstance(accessToken,IDPconfig):
     api_url = api_url_base + "kc/admin/realms/CZERTAINLY/identity-provider/instances"
     headers = {'Accept': 'application/json', 'Content-Type': 'application/json', 'Authorization': f'Bearer {accessToken}'}
     res = requests.post(api_url, headers=headers, data = IDPconfig)
+    print("Creating Identity Provider,..", res)
     return(res)
 
 
@@ -72,8 +73,8 @@ config = {"postBindingLogout": "true",
         "principalType": "Subject NameID"
       }
 payload = json.dumps({
-  "alias": "adfs-idp-alias-3", ## change this to specify identity provider alias, alias must be unique, without any spaces
-  "displayName": "AD FS 3", ## change this to specify identity provider display name
+  "alias": "adfs-idp-alias", ## change this to specify identity provider alias, alias must be unique, without any spaces
+  "displayName": "AD FS", ## change this to specify identity provider display name
   "providerId": "saml",
   "enabled": True,
   "updateProfileFirstLoginMode": "on",
