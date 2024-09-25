@@ -4,12 +4,12 @@ from CzertainlyAPIs import *
 
 
 ## approve connectors
-connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector"] ## specify which connectors should be approve 
+connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector","PyADCS-Connector"] ## specify which connectors should be approve 
 enableConnectors(connectors)
 
 ## Create Vault Authority
 connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector") 
-vaultAuthorityname = "API Vault CA" # specify Vault Authority name 
+vaultAuthorityname = "API-Vault-CA" # specify Vault Authority name 
 vaultURL = "https://katka2.3key.company:443" #specify url of Vault server
 roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83" # specify role ID for authorization (part of Vault app role )
 roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887" # specify role Secret (part of Vault app role)
@@ -19,7 +19,7 @@ authorityUuid = newVaultAuthority['uuid']
 
 
 ## Create Vault RA Profile ###############
-vaultRaProfilename = "API Vault first" # specify Vault Authority name 
+vaultRaProfilename = "API-Vault-first" # specify Vault Authority name 
 pkiEngine = "pki"  # enter pki engine name (from Vault server)
 vaultRole = "first" # enter vault role (from Vault server)
 
@@ -55,7 +55,7 @@ groupEmail = "email@example.com" # enter the group email
 createGroup (groupName, groupEmail)
 
 ## create ACME profile 
-acmeProfileName = "APIACME"  ## specify name for ACME profile, cannot contain any spaces 
+acmeProfileName = "API-ACME"  ## specify name for ACME profile, cannot contain any spaces 
 newAcmeProfile = createAcmeProfile(acmeProfileName)
 acmeProfileUuid = newAcmeProfile["uuid"]
 
@@ -63,28 +63,31 @@ acmeProfileUuid = newAcmeProfile["uuid"]
 activateAcmeProfile(acmeProfileUuid)
 
 # activate ACME for RA Profile
+
 activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
 
 
-# # Create MS Authority
+# Create MS Authority
 
 # create cerdentials
 credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
 
-msCredentialsName = "API ms adcs" # specify name of the credentials
+msCredentialsName = "API-ms-adcs" # specify name of the credentials
 username = "czertainly-unpriv" # enter username of the given Windows user 
-password = "password" # enter password of the given Windows user 
+password = "3KeyPKI2000" # enter password of the given Windows user 
 
 msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
 
 
-# Create MS Authority instance 
+# # Create MS Authority instance 
 
 pyadcsConnectorUuid = getConnectorUuid("PyADCS-Connector")
 
-msAdcsName = "API MS ADCS" ## specify name of MS ADCS authority
+
+msAdcsName = "API-MS-ADCS" ## specify name of MS ADCS authority
 msAdcsCredentialsUuid = msCredentials["uuid"]
 https = True
 msAdcsURL = "winlab01.3key.company" ## enter URL of Windows server with running MS ADCS 
 
+### Important Note: the certificate of CA (MS ADCS certification authority) issuing  the server certificate for winrm must be added in values.yaml in the trusted-certificate section  
 msAuthority = createMsAuthority(msAdcsName, msAdcsURL, msAdcsCredentialsUuid, pyadcsConnectorUuid)

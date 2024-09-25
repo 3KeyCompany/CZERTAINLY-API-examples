@@ -12,7 +12,7 @@ headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 cert_file = "client1.crt" # Specify certificates for CZERTAINLY authentication
 key_file = "client1.key"
 
-api_url_base = "https://katka1.3key.company/" # Specify CZERTAINLY URL
+api_url_base = "https://katka4.3key.company/" # Specify CZERTAINLY URL
 
 # cert_file = "admin-czertainly-lab09.crt"
 # key_file = "admin-czertainly-lab09.key"
