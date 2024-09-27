@@ -23,6 +23,15 @@ This scripts includes API for working with CZERTAINLY - roles, groups, RA Profil
 
 Both **Initialization.py** and **DatabaseSync.py** scripts include references to **CzertainlyAPIs.py**.
 
+
+## Authorizatipn.py
+
+In this scirpt specify:
+`CZERTAINLY URL` : https://czertainly.examle.com
+`certificate with private key` for CZERTAINLY Authorization (cert_example.crt, key_example.key)
+
+The certificate could be the deafult admin certificate which you received by CZERTAINLY installation.
+
 ## Initialization.py 
 
 This script implements a basic CZERTAINLY configuration including approving connectors, creating roles with specifiv permission, groups, RA profile and Authorirites. 
