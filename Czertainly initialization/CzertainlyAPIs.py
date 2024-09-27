@@ -4,19 +4,10 @@
 import requests
 import json
 import uuid
+from Authorization import cert_file, key_file, api_url_base
 
 
 headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
-
-################ Authorization ############################################
-cert_file = "client1.crt" # Specify certificates for CZERTAINLY authentication
-key_file = "client1.key"
-
-api_url_base = "https://katka1.3key.company/" # Specify CZERTAINLY URL
-
-# cert_file = "admin-czertainly-lab09.crt"
-# key_file = "admin-czertainly-lab09.key"
-# api_url_base = "https://katka1.3key.company/"
 
 
 ################ Connectors ############################################
@@ -31,7 +22,7 @@ def getConnectorUuid(connectorName):
         if connectorName == connector["name"]:
             return(connector["uuid"])
 
-def approveConnector(connectorUuid):
+def approveConnector( connectorUuid):
     api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/approve"
     res = requests.put(api_url, headers=headers, cert=(cert_file, key_file))
     return(res)
@@ -152,17 +143,24 @@ def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorit
 
 ############ Create Authority #####################################################
 
+
+def VaultCallback(connectorUuid):
+    data = {  "uuid": "335aede7-dd1f-4c87-9ff8-7dc93f18c5fe", "name": "credential_group",  "pathVariable": {"credentialsType": "approle"}, "requestParameter": {},"body": {}}
+    api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/authorityProvider/HVault/callback"
+    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    r_json = res.json()
+    return(r_json)  
 # Create HashiCorp Vault CA
 
 def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     authorityValue = [{"data": vaultURL}]
     authority_url = {"uuid": "8a68156a-d1f5-4322-b2a5-26e872a6fc0e", "name": "authority_url", "label": "Vault URL", "type": "data", "contentType": "string", "content": authorityValue}
-    roleIdValue = [{"data": roleID}]
-    role_id = { "uuid": "97a46e73-bf7d-421d-ae5a-2d0f453eb300","name": "role_id", "label": "Role ID", "type": "data", "contentType": "string", "content": roleIdValue}
+    roleIdValue =  [{ "data": {"secret": roleID}}]
+    role_id = { "uuid": "97a46e73-bf7d-421d-ae5a-2d0f453eb300","name": "role_id", "label": "Role ID", "type": "data", "contentType": "secret", "content": roleIdValue}
     credentialsTypeValue =  [{"reference": "AppRole","data": "approle"}]
     credentials_type = {"uuid": "85197836-2ceb-4e77-b14e-53d2e9761cfc","name": "credentials_type","label": "Authentication method","type": "data", "contentType": "string","content": credentialsTypeValue}
-    roleSecretValue = [{"data": roleSecret}]
-    role_secret = { "uuid": "60daa99e-5b08-4f36-8f51-d136ecba74e9","name": "role_secret","label": "Role Secret","type": "data","contentType": "string","content": roleSecretValue}
+    roleSecretValue = [{ "data": {"secret": roleSecret}}]
+    role_secret = { "uuid": "60daa99e-5b08-4f36-8f51-d136ecba74e9","name": "role_secret","label": "Role Secret","type": "data","contentType": "secret","content": roleSecretValue}
     attributes = [authority_url, role_id, credentials_type, role_secret]
     kind = "HVault"
     data = { "name": name, "attributes": attributes, "connectorUuid": connectorUUid,"kind": kind}
