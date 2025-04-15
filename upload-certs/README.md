@@ -57,7 +57,16 @@ loading: /usr/share/ca-certificates/mozilla/SSL.com_Root_Certification_Authority
 Total uploaded certs = 143, avg speed = 3.00 certs/sec
 ```
 
-### Upload CT log file
+## Install axeman
+
+[Axeman](https://github.com/CaliDog/Axeman) is needed for downloading CT logs, but official fork doesn't work. Install it:
+
+```
+python3 -m venv python3 # if on Debian, create virtual environment
+./python3/bin/pip3 install git+https://github.com/MohammedAdain/Axeman.git
+```
+
+## Upload CT log file
 
 upload-certs.py is able to parse CT log file is separated by comma as produced by [axeman](https://github.com/CaliDog/Axeman). You can use option `-z` to skip some blocks to get still valid certificates. Example of one line from logfile:
 ```
