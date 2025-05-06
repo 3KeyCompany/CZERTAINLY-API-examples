@@ -33,6 +33,6 @@ time seq 100 200 | parallel -j 10 python3 req-cert.py --URL https://demo.czertai
 
 real  2m44.266s
 user  0m28.506s
-sys	  0m3.009s
+sys   0m3.009s
 ```
 Above tries to issue 10 certificates in parallel. Totaly 100 certificates were issued in 164seconds.
