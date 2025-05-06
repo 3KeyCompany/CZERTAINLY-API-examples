@@ -28,7 +28,8 @@ def certificate_upload(config, PEM):
     """Function to upload certificate via API."""
     url = f"{config.URL}/{CERTIFICATES_UPLOAD_URI}"
     body = {
-               'certificate': PEM
+               'certificate': PEM,
+               'customAttributes': []
     }
 
     res = requests.post(url, timeout=TIMEOUT,
@@ -77,6 +78,7 @@ def upload_certificate(config, PEM:str):
         if config.trusted:
             uuid = r.json()['uuid']
             r = certificate_set_trusted(config, uuid)
+            # No longer needed with 2.14.0
             if r.status_code == 204:
                 print(" trusted", flush=True, end="")
                 # Succesffuly set as trusted.
