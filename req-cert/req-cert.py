@@ -2,13 +2,11 @@
 
 import argparse
 import base64
-import json
 import time
 import requests
 import urllib3
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
-from cryptography.hazmat.primitives import serialization
 
 TIMEOUT=30
 AUTHORITIES = '/api/v1/authorities'
