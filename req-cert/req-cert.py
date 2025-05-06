@@ -145,6 +145,7 @@ def main():
                         help='be verbose (default: %(default)s)')
 
     args = parser.parse_args()
+    start = time.time()
 
     if args.insecure:
         urllib3.disable_warnings()
@@ -153,36 +154,41 @@ def main():
     csr_b64 = base64.b64encode(csr.encode('utf-8')).decode('utf-8')
 
     if args.verbose:
-        print(f"loading: {args.csr}")
-        print(f"CSR: {csr_b64}")
+        elapsed = time.time() - start
+        print(f"{elapsed:.2f} loading: {args.csr}")
 
     ca_uuid = get_ca_uuid(args, args.CA)
     if ca_uuid is None:
         print(f"CA with name \"{args.CA}\" not found")
         exit(1)
     if args.verbose:
-        print(f"CA named \"{args.CA}\" has UUID: {ca_uuid}")
+        elapsed = time.time() - start
+        print(f"{elapsed:.2f} CA named \"{args.CA}\" has UUID: {ca_uuid}")
 
     ra_profile_uuid = get_ra_profile_uuid(args, ca_uuid, args.RA_profile)
     if ra_profile_uuid is None:
         print(f"RA Profile with name \"{args.RA_profile}\" not found")
         exit(1)
     if args.verbose:
-        print(f"RA Profile profile named \"{args.RA_profile}\" has UUID: {ra_profile_uuid}")
+        elapsed = time.time() - start
+        print(f"{elapsed:.2f} RA Profile profile named \"{args.RA_profile}\" has UUID: {ra_profile_uuid}")
 
     crt_uuid = request_certificate (args, ca_uuid, ra_profile_uuid, csr_b64)
     if crt_uuid is None:
-        print(f"Certificate request failed")
+        print("Certificate request failed")
         exit(1)
     if args.verbose:
-        print(f"Requested certificate got UUID: {crt_uuid}")
+        elapsed = time.time() - start
+        print(f"{elapsed:.2f} Requested certificate got UUID: {crt_uuid}")
 
     cert = get_certificate(args, crt_uuid)
     if cert is None:
-        print(f"Certificate download failed")
+        print("Certificate download failed")
         exit(1)
     cert_pem = base64.b64decode(cert.encode('utf-8')).decode('utf-8')
     if args.verbose:
+        elapsed = time.time() - start
+        print(f"{elapsed:.2f} Certificate downloaded")
         show_certificate_info(cert_pem)
 
     with open(args.out, "w", encoding="utf-8") as f:
