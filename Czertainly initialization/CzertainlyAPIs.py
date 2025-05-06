@@ -1,4 +1,4 @@
-## This scripts includes API for working with CZERTAINLY - roles, groups management and RA Profile, Authorities management 
+## This scripts includes API for working with CZERTAINLY - roles, groups management and RA Profile, Authorities management
 
 # importing libraries
 import requests
@@ -13,7 +13,7 @@ headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
 ################ Connectors ############################################
 def listConnectors():
     api_url = api_url_base + "/api/v1/connectors"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -24,7 +24,7 @@ def getConnectorUuid(connectorName):
 
 def approveConnector( connectorUuid):
     api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/approve"
-    res = requests.put(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.put(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     return(res)
 
 def enableConnectors(listOfConnectorsToApprove):
@@ -32,14 +32,14 @@ def enableConnectors(listOfConnectorsToApprove):
         if connector["name"] in listOfConnectorsToApprove:
             res = approveConnector(connector["uuid"])
             print("Approving Connector ", connector["name"], res)
-              
+
 
 
 ################ Roles ################################################
 # List Roles
 def listRoles():
     api_url = api_url_base + "/api/v1/roles"
-    res = requests.get(api_url , headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url , headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -47,7 +47,7 @@ def listRoles():
 def createRole(name):
     api_url = api_url_base + "/api/v1/roles"
     data = { "name": name}
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Creating Role...", res)
     return(r_json)
@@ -56,7 +56,7 @@ def createRole(name):
 # Delete Role
 def deleteRole(uuid):
     api_url = api_url_base + "/api/v1/roles"
-    res = requests.delete(api_url + "/" + uuid, headers=headers, cert=(cert_file, key_file))
+    res = requests.delete(api_url + "/" + uuid, headers=headers, verify=False, cert=(cert_file, key_file))
     return(res)
 
 ############### Roles Permissions ##########################################
@@ -64,7 +64,7 @@ def deleteRole(uuid):
 # Get Role Permissions
 def getRolePermissions(uuid):
     api_url = api_url_base + "/api/v1/roles"
-    res = requests.get(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url + "/" + uuid + "/permissions", headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -76,7 +76,7 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
     certificates = {"name": "certificates","allowAllActions": True, "actions": [],"objects": []}
     resources = [certificates]
     data = {"allowAllResources": False, "resources": resources}
-    res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     return(r_json)
 
@@ -84,7 +84,7 @@ def addRolesCertificates(uuid): # add permissions to work with certificates
 
 # Add initialized role permissions including:
 ## working with certificates
-## working with acme 
+## working with acme
 ## working with ra profiles
 ## working with authorities
 
@@ -111,10 +111,10 @@ def addRolesRBPermissions(uuid):
     discoveries = {"name": "discoveries","allowAllActions": True, "actions": [],"objects": []}
     roles = {"name": "roles","allowAllActions": False, "actions": ["list"],"objects": []}
     triggers = {"name": "triggers","allowAllActions": False, "actions": ["detail","list"],"objects": []}
-        
+
     resources = [certificates, locations, acmeAccounts,acmeProfiles,approvalProfiles,authorities,attributes,connectors,complianceProfiles,credentials,discoveries,groups,raProfiles,roles,triggers,users]
     data = {"allowAllResources": False, "resources": resources}
-    res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url + "/" + uuid + "/permissions", headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Adding roles permissions...", res)
     return(r_json)
@@ -125,8 +125,8 @@ def addRolesRBPermissions(uuid):
 def addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfileName):
     api_url = api_url_base + "/api/v1/roles"
     data = [{"uuid": RAProfileUuid, "name": RAProfileName, "allow": ["list", "detail"]}]
-    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceRAProfileUuid + "/objects" 
-    res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceRAProfileUuid + "/objects"
+    res = requests.post(api_url , headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     print("Adding RA Profiles permissions...", res)
     return(res)
 
@@ -134,8 +134,8 @@ def addRolesRAProfiles(roleUuid, resourceRAProfileUuid, RAProfileUuid, RAProfile
 def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName):
     api_url = api_url_base + "/api/v1/roles"
     data = [{"uuid": authorityUuid, "name": authorityName, "allow": ["list", "detail", "members"]}]
-    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceAuthorityUuid + "/objects" 
-    res = requests.post(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    api_url = api_url + "/" + roleUuid + "/permissions/" + resourceAuthorityUuid + "/objects"
+    res = requests.post(api_url , headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     print("Adding Authorities permissions...", res)
     return(res)
 
@@ -147,9 +147,9 @@ def addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorit
 def VaultCallback(connectorUuid):
     data = {  "uuid": "335aede7-dd1f-4c87-9ff8-7dc93f18c5fe", "name": "credential_group",  "pathVariable": {"credentialsType": "approle"}, "requestParameter": {},"body": {}}
     api_url = api_url_base + "/api/v1/connectors/" + connectorUuid + "/authorityProvider/HVault/callback"
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
-    return(r_json)  
+    return(r_json)
 # Create HashiCorp Vault CA
 
 def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
@@ -165,29 +165,29 @@ def createVaultAuthority(name , vaultURL, roleID, roleSecret, connectorUUid):
     kind = "HVault"
     data = { "name": name, "attributes": attributes, "connectorUuid": connectorUUid,"kind": kind}
     api_url = api_url_base + "/api/v1/authorities"
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Creating Vault Authority...",res)
-    return(r_json)  
+    return(r_json)
 
 # Create MS ADCS Authority
 
 def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
     authority_winrm_port_Value = [{"data": 5986}]
     authority_winrm_port = {"uuid": "079f9f93-adc0-48bd-96f1-095991295cb9", "name": "authority_winrm_port", "label": "WinRM Port", "type": "data", "contentType": "integer", "content": authority_winrm_port_Value}
-    
+
     authority_use_https_Value = [{"data": True}]
     authority_use_https = { "uuid": "645d3690-b460-43e7-94c9-9374cf5f14b3","name": "authority_use_https", "label": "Use HTTPS", "type": "data", "contentType": "boolean", "content": authority_use_https_Value}
-    
+
     authority_credential_type_Value =  [{"reference": "Basic","data": "Basic"}]
     authority_credential_type = {"uuid": "e05beb6a-90fe-4f85-bd9f-2394d70a0a29","name": "authority_credential_type","label": "Credential Type","type": "data", "contentType": "string","content": authority_credential_type_Value}
-    
+
     authority_credential_Value = [{"data": {"uuid": credentialsUuid}}]
     authority_credential = { "uuid": "93d77f65-d9c4-497c-bdee-f3330eb0f209","name": "authority_credential","label": "Credential","type": "data","contentType": "credential","content": authority_credential_Value}
-    
+
     authority_winrm_transport_Value = [{ "reference": "CredSSP", "data": "credssp"}]
     authority_winrm_transport = { "uuid": "06cf66eb-5c1e-4edf-8308-617565a5d6b4","name": "authority_winrm_transport", "label": "WinRM Transport", "type": "data", "contentType": "string", "content": authority_winrm_transport_Value}
-    
+
     authority_server_address_Value = [{ "data": msAdcsURL}]
     authority_server_address = { "uuid": "f2ee713a-c7cf-4b27-ae91-a84606b4877a","name": "authority_server_address", "label": "ADCS server address", "type": "data", "contentType": "string", "content": authority_server_address_Value}
 
@@ -195,16 +195,16 @@ def createMsAuthority(name , msAdcsURL,  credentialsUuid, connectorUUid):
     kind = "PyADCS-WinRM"
     data = { "name": name, "attributes": attributes, "connectorUuid": connectorUUid,"kind": kind}
     api_url = api_url_base + "/api/v1/authorities"
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Creating MS ADCS Authority...",res)
-    return(r_json)  
+    return(r_json)
 
 
-      
-      
+
+
 ############### Create RA Profile ############################################
-## create RA profile for HashiCorp Vault CA 
+## create RA profile for HashiCorp Vault CA
 
 def createVaultRAProfile(name, authorityUuid, pkiEngine, vaultRole):
     authorityInstanceUuid = authorityUuid
@@ -217,20 +217,20 @@ def createVaultRAProfile(name, authorityUuid, pkiEngine, vaultRole):
     attributes = [ra_profile_role, ra_profile_engine, ra_profile_authority]
     data = { "name": name, "authorityInstanceUuid": authorityInstanceUuid, "attributes": attributes, "enabled" : True}
     api_url = api_url_base + "/api/v1/authorities/" + authorityUuid + "/raProfiles"
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Creating Vault RA profile...",res)
-    return(r_json)  
-   
+    return(r_json)
+
 
 ########################### Groups ##############################
 
 # List Group
 
 def listGroup():
-    
+
     api_url = api_url_base + "/api/v1/groups"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -238,7 +238,7 @@ def listGroup():
 def createGroup(name, email):
     api_url = api_url_base + "/api/v1/groups"
     data = { "name": name, "email": email}
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     print("Creating Group...",res)
     return(r_json)
@@ -246,7 +246,7 @@ def createGroup(name, email):
 # Delete Group
 def deleteGroup(uuid):
     api_url = api_url_base + "/api/v1/groups"
-    res = requests.delete(api_url + "/" + uuid, headers=headers, cert=(cert_file, key_file))
+    res = requests.delete(api_url + "/" + uuid, headers=headers, verify=False, cert=(cert_file, key_file))
     return(res)
 
 
@@ -254,7 +254,7 @@ def deleteGroup(uuid):
 def editGroup(name, email, uuid):
     api_url = api_url_base + "/api/v1/groups"
     data = { "name": name, "email": email}
-    res = requests.put(api_url + "/" + uuid, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.put(api_url + "/" + uuid, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     r_json = res.json()
     return(r_json)
 
@@ -290,7 +290,7 @@ def deleteObject(name):
     for role in allroles:
         if role["name"] == name:
             roleuuid = role["uuid"]
-    deleteGroup(groupuuid)        
+    deleteGroup(groupuuid)
     deleteRole(roleuuid)
 
 
@@ -300,7 +300,7 @@ def deleteObject(name):
 # List all certificates UUIDs
 def listCertificatesUuids():
     api_url = api_url_base + "/api/v1/certificates"
-    res = requests.post(api_url , headers=headers, cert=(cert_file, key_file),json = {"itemsPerPage": 100, "pageNumber": 1}) ## only first 100 certiifcates will be listed!!!!!!
+    res = requests.post(api_url , headers=headers, verify=False, cert=(cert_file, key_file),json = {"itemsPerPage": 100, "pageNumber": 1}) ## only first 100 certiifcates will be listed!!!!!!
     r_json = res.json()
     uuids = [cert['uuid'] for cert in r_json['certificates']]
     return(uuids)
@@ -310,32 +310,32 @@ def listCertificatesUuids():
 def deleteCertificateOwner(certUuids):
     api_url =  api_url_base + "/api/v1/certificates"
     data = { "ownerUuid": "", "certificateUuids": certUuids}
-    res = requests.patch(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.patch(api_url , headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     return(res)
 
-    
 
-################## Resources, Objects ##################### 
+
+################## Resources, Objects #####################
 
 def getResources(): # Get list of resources (acmeAcocounts, authorites, raprofiles) with their permissions (detail, list, delete ,...)
     api_url = api_url_base + "api/v1/auth/resources"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
-def getObjectOfResources(): # Get objects (ejbca, msadcs,..) of the resources (authority) 
+def getObjectOfResources(): # Get objects (ejbca, msadcs,..) of the resources (authority)
     api_url = api_url_base + "api/v1/auth/resources/authorities/objects"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
-def getResourceUuid(resource): # Get Uuid of the resources (authority) 
+def getResourceUuid(resource): # Get Uuid of the resources (authority)
     for rsc in getResources():
         if rsc["name"] == resource:
             return (rsc["uuid"])
-    
+
     api_url = api_url_base + "api/v1/auth/resources/authorities/objects"
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -349,25 +349,25 @@ def createBasicCredentials (name, username, password, connectorUUid ):
     passwordAttribute = {"uuid": "04506d45-c865-4ddc-b6fc-117ee5d5c8e7","name": "password","label": "Password","type": "data","contentType": "secret","content": passwordValue}
     attributes = [usernameAttribute, passwordAttribute]
     data = { "name": name, "kind": "Basic", "attributes": attributes, "connectorUuid": connectorUUid}
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     print("Creating Basic Credentials...",res)
     r_json = res.json()
     return(r_json)
-    
+
 
 
 ################# RA profile, Authority details ###############
 
-def getRaProfileDetail(authorityUuid, raProfileUuid): 
+def getRaProfileDetail(authorityUuid, raProfileUuid):
     api_url = api_url_base + "api/v1/authorities/" + authorityUuid + "/raProfiles/" + raProfileUuid
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
 
-def getAuthorityDetail(authorityUuid): 
+def getAuthorityDetail(authorityUuid):
     api_url = api_url_base + "api/v1/authorities/" + authorityUuid
-    res = requests.get(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.get(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     r_json = res.json()
     return(r_json)
 
@@ -375,7 +375,7 @@ def getAuthorityDetail(authorityUuid):
 def activateAcmeforRaProfile (authorityUuid, raProfileUuid, acmeProfileUuid):
     api_url = api_url_base + "api/v1/authorities/" + authorityUuid + "/raProfiles/" + raProfileUuid + "/protocols/acme/activate/" + acmeProfileUuid
     data = { "issueCertificateAttributes": [], "revokeCertificateAttributes": []}
-    res = requests.patch(api_url , headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.patch(api_url , headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     print("Activating ACME for RA profile...",res)
     return(res)
 
@@ -384,15 +384,13 @@ def activateAcmeforRaProfile (authorityUuid, raProfileUuid, acmeProfileUuid):
 def createAcmeProfile(name):
     api_url = api_url_base + "api/v1/acmeProfiles"
     data = { "name": name,  "enabled": True}
-    res = requests.post(api_url, headers=headers, cert=(cert_file, key_file), json = data)
+    res = requests.post(api_url, headers=headers, verify=False, cert=(cert_file, key_file), json = data)
     print("Creating ACME Profile...",res)
     r_json = res.json()
     return(r_json)
 
 def activateAcmeProfile(acmeProfileUuid):
     api_url = api_url_base + "api/v1/acmeProfiles/" + acmeProfileUuid + "/enable"
-    res = requests.patch(api_url, headers=headers, cert=(cert_file, key_file))
+    res = requests.patch(api_url, headers=headers, verify=False, cert=(cert_file, key_file))
     print("Activating ACME profile...",res)
     return(res)
-
-

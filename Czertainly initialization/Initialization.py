@@ -1,4 +1,4 @@
-## This script implements a basic CZERTAINLY configuration including approving connectors, creating roles with specifiv permission, groups, RA profile and Authorirites. 
+## This script implements a basic CZERTAINLY configuration including approving connectors, creating roles with specifiv permission, groups, RA profile and Authorirites.
 
 ##### Authorization ###################################
 
@@ -8,55 +8,55 @@
 #In this section, provide your configuration parameters, including the names of new objects, URLs, and other required attributes from the external system.
 
 ## Approve connectors
-connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector","PyADCS-Connector"] ## specify which connectors should be approve 
+connectors = ["Common-Credential-Connector", "HashiCorp-Vault-Connector","PyADCS-Connector"] ## specify which connectors should be approve
 
-## Vault authority 
-vaultAuthorityname = "API-Vault-CA" # specify Vault Authority name 
+## Vault authority
+vaultAuthorityname = "API-Vault-CA" # specify Vault Authority name
 vaultURL = "https://katka2.3key.company:443" #specify url of Vault server
 roleID = "37eb08f0-7534-6257-e748-8aa7af1fae83" # specify role ID for authorization (part of Vault app role )
 roleSecret = "7c3b1d39-7e53-7e6e-4146-ee44a38e1887" # specify role Secret (part of Vault app role)
 
 ## Vault RA Profile ###############
-vaultRaProfilename = "API-Vault-first" # specify Vault Authority name 
+vaultRaProfilename = "API-Vault-first" # specify Vault Authority name
 pkiEngine = "pki"  # enter pki engine name (from Vault server)
 vaultRole = "first" # enter vault role (from Vault server)
 
-## New role 
+## New role
 roleName = "API-role" # specify name of a new role
 
-## New Group 
+## New Group
 groupName = roleName ## the group be identical to Role name, you can change it
 groupEmail = "email@example.com" # enter the group email
 
 
-## ACME profile 
-acmeProfileName = "API-ACME"  ## specify name for ACME profile, cannot contain any spaces 
+## ACME profile
+acmeProfileName = "API-ACME"  ## specify name for ACME profile, cannot contain any spaces
 
 ##MS ADCS Authority
 
 # cerdentials
 msCredentialsName = "API-ms-adcs" # specify name of the credentials
-username = "czertainly-unpriv" # enter username of the given Windows user 
-password = "password" # enter password of the given Windows user 
+username = "czertainly-unpriv" # enter username of the given Windows user
+password = "3KeyPKI2000" # enter password of the given Windows user
 
-# MS Authority instance 
+# MS Authority instance
 msAdcsName = "API-MS-ADCS" ## specify name of MS ADCS authority
-msAdcsURL = "winlab01.3key.company" ## enter URL of Windows server with running MS ADCS 
+msAdcsURL = "winlab01.3key.company" ## enter URL of Windows server with running MS ADCS
 
-### Important Note: the certificate of CA (MS ADCS certification authority) issuing  the server certificate for winrm must be added in values.yaml in the trusted-certificate section 
+### Important Note: the certificate of CA (MS ADCS certification authority) issuing  the server certificate for winrm must be added in values.yaml in the trusted-certificate section
 
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 # This part of script includes calling functions implemented in CzertainlyAPIs.py. Please do not make any changes here.
 
-from CzertainlyAPIs import * 
+from CzertainlyAPIs import *
 
 ## approve connectors
 enableConnectors(connectors)
 
 ## Create Vault Authority
-connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector") 
+connectorVaultUuid = getConnectorUuid("HashiCorp-Vault-Connector")
 callback = VaultCallback(connectorVaultUuid)
 
 newVaultAuthority = createVaultAuthority(vaultAuthorityname, vaultURL, roleID, roleSecret, connectorVaultUuid)
@@ -69,15 +69,15 @@ raProfileUuid = newVaultRAProfile['uuid']
 
 
 # get Authority name
-authorityDetail = getAuthorityDetail(authorityUuid) 
+authorityDetail = getAuthorityDetail(authorityUuid)
 authorityName = authorityDetail['name']
 
-# get RA profile name 
+# get RA profile name
 raProfileDetail = getRaProfileDetail (authorityUuid, raProfileUuid)
 raProfileName = raProfileDetail['name']
 
 
-## Create the first role 
+## Create the first role
 role  = createRole(roleName)
 roleUuid = role["uuid"]
 
@@ -89,10 +89,10 @@ editedRole = addRolesRBPermissions (roleUuid)
 editedRole = addRolesRAProfiles(roleUuid, resourceRAProfileUuid, raProfileUuid, raProfileName)
 editedRole = addRolesAuthorities(roleUuid, resourceAuthorityUuid, authorityUuid, authorityName)
 
-## Create a Group (with the same name as for Role) 
+## Create a Group (with the same name as for Role)
 createGroup (groupName, groupEmail)
 
-## create ACME profile 
+## create ACME profile
 newAcmeProfile = createAcmeProfile(acmeProfileName)
 acmeProfileUuid = newAcmeProfile["uuid"]
 
@@ -110,7 +110,7 @@ activateAcmeforRaProfile(authorityUuid, raProfileUuid, acmeProfileUuid)
 credentialConnectorUuid = getConnectorUuid("Common-Credential-Connector")
 msCredentials = createBasicCredentials(msCredentialsName, username, password, credentialConnectorUuid)
 
-## Create MS Authority instance 
+## Create MS Authority instance
 pyadcsConnectorUuid = getConnectorUuid("PyADCS-Connector")
 msAdcsCredentialsUuid = msCredentials["uuid"]
 https = True
