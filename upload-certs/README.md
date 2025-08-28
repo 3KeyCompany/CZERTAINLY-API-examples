@@ -57,7 +57,7 @@ loading: /usr/share/ca-certificates/mozilla/SSL.com_Root_Certification_Authority
 Total uploaded certs = 143, avg speed = 3.00 certs/sec
 ```
 
-## Install axeman
+## Install & use axeman
 
 [Axeman](https://github.com/CaliDog/Axeman) is needed for downloading CT logs, but official fork doesn't work. Install it:
 
@@ -65,6 +65,29 @@ Total uploaded certs = 143, avg speed = 3.00 certs/sec
 python3 -m venv python3 # if on Debian, create virtual environment
 ./python3/bin/pip3 install git+https://github.com/MohammedAdain/Axeman.git
 ```
+
+List known CT logs:
+```
+~/python3/bin/axeman -l
+Found 181 CTLs...
+Google 'Argon2020' log
+    \- URL:            ct.googleapis.com/logs/argon2020
+    \- Owner:          Google
+    \- Cert Count:     961984012
+    \- Max Block Size: 32
+...
+Cloudflare 'Nimbus2026'
+    \- URL:            ct.cloudflare.com/logs/nimbus2026
+    \- Owner:          Cloudflare
+    \- Cert Count:     499056066
+    \- Max Block Size: 1024
+```
+and pick some with bigger Block size. Like `ct.cloudflare.com/logs/nimbus2026`. If you want to get 1milion of certificates, subtract this number from Cert Count and call:
+
+```
+~/python3/bin/axeman -c 50 -z 498056066 -v -u ct.cloudflare.com/logs/nimbus2026
+```
+Above command will create directory `certificates/ct.cloudflare.com/logs/nimbus2026` and fill it with CSV files containing certificates. Each file will contain 1024 certificates. It will download in 50 parallel threads.
 
 ## Upload CT log file
 
@@ -88,3 +111,10 @@ loading: /home/semik/tmp/certificates/ct.cloudflare.com_logs_nimbus2024/79166176
 Uploaded certs = 1189, avg speed = 5.28 certs/sec
 Total uploaded certs = 1189, avg speed = 5.28 certs/sec
 ```
+
+## Parallel CT log upload
+
+cd into file with certificates create `done` directory for storing complete certs and exec 50 parallel uploads:
+```
+mkdir done
+ls -1 | xargs -I{} -P50 bash -c 'python3 ~/3K/CZERTAINLY-API-examples/upload-certs/upload-certs.py importCTlog --URL https://czertainly.doma.tomasek.cz/ --insecure --cert ~/3K/admin.pem --key ~/3K/admin.key "$1" > done/"$1".log 2>&1 && mv "$1" done/' -- {}
