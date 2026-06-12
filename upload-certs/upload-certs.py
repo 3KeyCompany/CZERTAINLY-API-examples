@@ -94,7 +94,7 @@ def upload_certificate(config, PEM:str):
             else:
                 raise Exception("Failed to set certificate as trusted: " + str(r.text))
         return 1
-    elif (r.status_code == 400) and ("already exists" in str(r.text)):
+    elif "already exists" in str(r.text):
         # certificate is already present in CZERTAINLY, it would be nice to be
         # sure it is also trusted ...
         return 3
