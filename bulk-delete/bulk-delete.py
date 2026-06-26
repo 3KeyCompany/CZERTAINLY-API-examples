@@ -220,10 +220,21 @@ def fetch_discoveries_page(session, base_url, filters, batch_size, page):
     return data.get("discoveries", []), data.get("totalPages", 0), data.get("totalItems", 0)
 
 
-def run_discoveries(session, base_url, statuses, limit, batch_size, dry_run):
+def normalize_before_date(date_str):
+    """Normalize a date string to the ISO 8601 format expected by the API.
+
+    Accepts 'YYYY-MM-DD' (expanded to T00:00:00.000Z) or a full ISO datetime
+    string (passed through unchanged).
+    """
+    if "T" not in date_str:
+        return f"{date_str}T00:00:00.000Z"
+    return date_str
+
+
+def run_discoveries(session, base_url, statuses, before_date, limit, batch_size, dry_run):
     """Delete discoveries from oldest to newest using last-page strategy.
 
-    If status filtering does not work as expected, call:
+    If filtering does not work as expected, call:
       GET /api/v1/discoveries/search
     to discover available fieldIdentifier and fieldSource values.
     """
@@ -234,6 +245,13 @@ def run_discoveries(session, base_url, statuses, limit, batch_size, dry_run):
             "fieldIdentifier": "DISCOVERY_STATUS",
             "condition": "EQUALS",
             "value": statuses,
+        })
+    if before_date:
+        filters.append({
+            "fieldSource": "property",
+            "fieldIdentifier": "DISCOVERY_START_TIME",
+            "condition": "LESSER",
+            "value": normalize_before_date(before_date),
         })
 
     if dry_run:
@@ -334,6 +352,9 @@ def main():
     disc_cmd = subparsers.add_parser("discoveries", help="Delete discoveries")
     disc_cmd.add_argument("--status", nargs="+", metavar="STATUS",
                           help="Filter by status, e.g. --status FAILED IN_PROGRESS")
+    disc_cmd.add_argument("--before", metavar="DATE",
+                          help="Delete discoveries started before DATE, "
+                               "e.g. --before 2025-12-31 or --before 2025-12-30T23:00:00.000Z")
     disc_cmd.add_argument("--limit", type=int, metavar="N",
                           help="Delete N oldest (default: all matching)")
     disc_cmd.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE,
@@ -362,9 +383,10 @@ def main():
 
     elif args.command == "discoveries":
         status_label = f" (status: {', '.join(args.status)})" if args.status else ""
+        before_label = f", before {args.before}" if args.before else ""
         limit_label = f", limit {args.limit}" if args.limit else ""
-        print(f"{'[dry-run] ' if args.dry_run else ''}Deleting discoveries{status_label}{limit_label} ...")
-        run_discoveries(session, args.url, args.status, args.limit, args.batch_size, args.dry_run)
+        print(f"{'[dry-run] ' if args.dry_run else ''}Deleting discoveries{status_label}{before_label}{limit_label} ...")
+        run_discoveries(session, args.url, args.status, args.before, args.limit, args.batch_size, args.dry_run)
 
     if args.dry_run:
         print("Dry run complete — nothing was deleted.")
