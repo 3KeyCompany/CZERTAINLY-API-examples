@@ -114,7 +114,7 @@ Total uploaded certs = 1189, avg speed = 5.28 certs/sec
 
 ## Parallel CT log upload
 
-cd into file with certificates create `done` directory for storing complete certs and exec 50 parallel uploads:
+`cd` into file with certificates create `done` directory for storing complete certs and exec 50 parallel uploads:
 ```
 mkdir done
 ls -1 | xargs -I{} -P50 bash -c 'python3 ~/3K/CZERTAINLY-API-examples/upload-certs/upload-certs.py importCTlog --URL https://czertainly.doma.tomasek.cz/ --insecure --cert ~/3K/admin.pem --key ~/3K/admin.key "$1" > done/"$1".log 2>&1 && mv "$1" done/' -- {}
